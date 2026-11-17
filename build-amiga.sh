@@ -61,7 +61,9 @@ CF="-noixemul $CPU -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns -
  $INC -I$SDK/include/SDL2 -I$SDK/include"
 DEFS=$(np_defs)
 O="$WORK/obj"
-[ "$(cat "$O/.src" 2>/dev/null)" = "$(cat "$SRC/.patched")" ] || { rm -rf "$O"; mkdir -p "$O"; cat "$SRC/.patched" > "$O/.src"; }
+# objects are remade when the sources or the flags change
+STAMP="$(cat "$SRC/.patched") $(echo "$CF $DEFS" | sha256sum | cut -c1-16)"
+[ "$(cat "$O/.src" 2>/dev/null)" = "$STAMP" ] || { rm -rf "$O"; mkdir -p "$O"; echo "$STAMP" > "$O/.src"; }
 M="$O/Makefile"
 {
     echo "CF = $CF"
@@ -86,10 +88,11 @@ M="$O/Makefile"
 echo "compile: $(( $(date +%s) - t0 )) s"
 
 # --- link ------------------------------------------------------------------------
+# -lpthread: the stove's libstdc++ and libgcc lock with its pthreads
 # shellcheck disable=SC2046
 m68k-amigaos-g++ -noixemul $CPU -o "$O/NumptyPhysics.debug" \
     $(cd "$O" && for f in $(sed -n 's/^OBJS =//p' Makefile); do echo "$O/$f"; done) \
-    -L"$SDK/lib" -lSDL2_ttf -lSDL2_image -lSDL2 -lGL -lm > "$O/link.log" 2>&1 || { grep -E 'undefined|error' "$O/link.log" | sed 's#^.*/##' | sort | uniq -c | sort -rn | head -60; exit 1; }
+    -L"$SDK/lib" -lSDL2_ttf -lSDL2_image -lSDL2 -lGL -lm -lpthread > "$O/link.log" 2>&1 || { grep -E 'undefined|error' "$O/link.log" | sed 's#^.*/##' | sort | uniq -c | sort -rn | head -60; exit 1; }
 
 # --- the GFOpenUp part: Parts/NumptyPhysics ----------------------------------------
 P="$OUT/Parts/NumptyPhysics"; D="$P/Games/NumptyPhysics"; rm -rf "$P"; mkdir -p "$D"
