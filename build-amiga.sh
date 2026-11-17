@@ -62,7 +62,7 @@ CF="-noixemul $CPU -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns -
 DEFS=$(np_defs)
 O="$WORK/obj"
 # objects are remade when the sources or the flags change
-STAMP="$(cat "$SRC/.patched") $(echo "$CF $DEFS" | sha256sum | cut -c1-16)"
+STAMP="$(cat "$SRC/.patched") $( (echo "$CF $DEFS"; cat "$HERE/build-amiga.sh") | sha256sum | cut -c1-16)"
 [ "$(cat "$O/.src" 2>/dev/null)" = "$STAMP" ] || { rm -rf "$O"; mkdir -p "$O"; echo "$STAMP" > "$O/.src"; }
 M="$O/Makefile"
 {
@@ -84,7 +84,7 @@ M="$O/Makefile"
     echo "all: \$(OBJS)"
     echo "-include *.d"
 } > "$M"
-(cd "$O" && nice -n 19 make -k -j"$JOBS" all > make.log 2>&1) || { grep -E 'error:' "$O/make.log" | sed 's#^.*/##' | sort | uniq -c | sort -rn | head -100; exit 1; }
+(cd "$O" && nice -n 19 make -k -j"$JOBS" all > make.log 2>&1) || { grep -E 'error:|\*\*\*' "$O/make.log" | sed 's#^.*/##' | sort | uniq -c | sort -rn | head -100; exit 1; }
 echo "compile: $(( $(date +%s) - t0 )) s"
 
 # --- link ------------------------------------------------------------------------
