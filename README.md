@@ -41,6 +41,10 @@ Italian and Russian texts are in `data/i18n`).
   `PROGDIR:` (argv[0] may have no path when started from Workbench), the
   data drawer is `PROGDIR:data` and the language is English.
 
+* `0003-format-without-vasprintf.patch`: thp::format sizes its text with
+  `vsnprintf` instead of `vasprintf`, a GNU and BSD call that libnix does not
+  have (on every platform, so the PC tests run the same code).
+
 `amiga/amiga_start.c` sets the stack and the `$VER` string and calls the
 game's own SDL 2 `main()`, built as `np_game_main`.
 

@@ -1,0 +1,67 @@
+--- a/external/thp/thp_format.cpp
++++ b/external/thp/thp_format.cpp
+@@ -22,6 +22,25 @@
+ #include <string>
+ #include <cstdarg>
+ #include <cstdlib>
++#include <cstdio>
++
++/* vasprintf is a GNU and BSD call that libnix (GFOS) does not have:
++   size the text with vsnprintf on a copy of the arguments, then write it */
++static std::string
++thp_vformat(const char *fmt, va_list ap)
++{
++    va_list ap2;
++    va_copy(ap2, ap);
++    int n = vsnprintf(NULL, 0, fmt, ap2);
++    va_end(ap2);
++    if (n < 0) {
++        return std::string();
++    }
++    std::string result((size_t)n + 1, '\0');
++    vsnprintf(&result[0], (size_t)n + 1, fmt, ap);
++    result.resize((size_t)n);
++    return result;
++}
+ 
+ 
+ std::string
+@@ -30,10 +49,8 @@
+     va_list ap;
+     va_start(ap, fmt);
+ 
+-    char *tmp;
+-    vasprintf(&tmp, fmt, ap);
+-    std::string result = tmp;
+-    free(tmp);
++    std::string result = thp_vformat(fmt, ap);
++    va_end(ap);
+ 
+     return result;
+ }
+@@ -44,10 +61,8 @@
+     va_list ap;
+     va_start(ap, fmt);
+ 
+-    char *tmp;
+-    vasprintf(&tmp, fmt.c_str(), ap);
+-    std::string result = tmp;
+-    free(tmp);
++    std::string result = thp_vformat(fmt.c_str(), ap);
++    va_end(ap);
+ 
+     return result;
+ }
+@@ -58,10 +73,8 @@
+     va_list ap;
+     va_start(ap, fmt);
+ 
+-    char *tmp;
+-    vasprintf(&tmp, fmt.c_str(), ap);
+-    std::string result = tmp;
+-    free(tmp);
++    std::string result = thp_vformat(fmt.c_str(), ap);
++    va_end(ap);
+ 
+     return result;
+ }
