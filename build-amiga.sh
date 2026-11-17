@@ -78,8 +78,8 @@ M="$O/Makefile"
         printf '%s: %s\n\tm68k-amigaos-gcc -std=gnu99 $(CF) -w -MMD -c $< -o $@\n' "$o" "$S/$f"
     done
     A="$A amiga_start.o"
-    printf 'amiga_start.o: %s\n\tm68k-amigaos-gcc $(CF) -Wall -DNP_VERSION=\\"%s\\" -DNP_DATE=\\"%s\\" -MMD -c $< -o $@\n' \
-        "$HERE/amiga/amiga_start.c" "$NP_VERSION" "$(date -u +%d.%m.%Y)"
+    printf 'amiga_start.o: %s\n\tm68k-amigaos-g++ -std=gnu++11 $(CF) -Wall -DNP_VERSION=\\"%s\\" -DNP_DATE=\\"%s\\" -MMD -c $< -o $@\n' \
+        "$HERE/amiga/amiga_start.cpp" "$NP_VERSION" "$(date -u +%d.%m.%Y)"
     echo "OBJS =$A"
     echo "all: \$(OBJS)"
     echo "-include *.d"
