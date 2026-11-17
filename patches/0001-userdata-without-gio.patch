@@ -1,0 +1,37 @@
+--- a/platform/freedesktop/OsFreeDesktop.h
++++ b/platform/freedesktop/OsFreeDesktop.h
+@@ -17,7 +17,7 @@
+ 
+ #include "Os.h"
+ 
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(NP_NO_GIO)
+ #include <gio/gio.h>
+ 
+ 
+@@ -42,7 +42,7 @@
+     {
+     }
+ 
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(NP_NO_GIO)
+     virtual bool openBrowser(const char *url)
+     {
+         return g_app_info_launch_default_for_uri (url, NULL, NULL) == TRUE;
+@@ -61,8 +61,16 @@
+ 
+     virtual std::string userDataDir()
+     {
++#if defined(__amigaos__)
++        /* the game's own drawer keeps the player's levels and progress */
++        return "PROGDIR:UserData";
++#elif defined(NP_NO_GIO)
++        const char *home = getenv("HOME");
++        return home ? std::string(home) + "/.numptyphysics" : std::string(".numptyphysics");
++#else
+         // TODO
+         return ".";
++#endif
+     }
+ #endif
+ };

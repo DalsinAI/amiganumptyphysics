@@ -1,0 +1,7 @@
+# What this port builds on: fetched at build time, never shipped from here.
+# Numpty Physics (GPL-3, levels and fonts under their own free licences in
+# data/), master of July 2022 (0.3.9 and later fixes), with its bundled
+# Box2D 2.0, tinyxml2, glaserl and helpers in external/
+NP_GIT=https://gitlab.com/thp/numptyphysics.git
+NP_COMMIT=9b9824b253c6cc941c68c28f2875d12c2b1c31ac
+NP_VERSION=0.3.9
